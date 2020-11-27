@@ -6,6 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import androidx.annotation.Nullable;
+
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -15,6 +19,9 @@ public class Practice08XfermodeView extends View {
     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     Bitmap bitmap1;
     Bitmap bitmap2;
+    Xfermode srcXfermode;
+    Xfermode dstInXfermode;
+    Xfermode dstOutXfermode;
 
     public Practice08XfermodeView(Context context) {
         super(context);
@@ -31,6 +38,9 @@ public class Practice08XfermodeView extends View {
     {
         bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.batman);
         bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.batman_logo);
+        srcXfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC);
+        dstInXfermode = new PorterDuffXfermode(PorterDuff.Mode.DST_IN);
+        dstOutXfermode = new PorterDuffXfermode(PorterDuff.Mode.DST_OUT);
     }
 
     @Override
@@ -40,19 +50,29 @@ public class Practice08XfermodeView extends View {
         // 使用 paint.setXfermode() 设置不同的结合绘制效果
 
         // 别忘了用 canvas.saveLayer() 开启 off-screen buffer
-
+        canvas.saveLayer(null, null, Canvas.ALL_SAVE_FLAG);
+        // DST
         canvas.drawBitmap(bitmap1, 0, 0, paint);
+
+        paint.setXfermode(srcXfermode);
         // 第一个：PorterDuff.Mode.SRC
+        // SRC
         canvas.drawBitmap(bitmap2, 0, 0, paint);
+        paint.setXfermode(null);
 
         canvas.drawBitmap(bitmap1, bitmap1.getWidth() + 100, 0, paint);
+        paint.setXfermode(dstInXfermode);
         // 第二个：PorterDuff.Mode.DST_IN
         canvas.drawBitmap(bitmap2, bitmap1.getWidth() + 100, 0, paint);
+        paint.setXfermode(null);
 
         canvas.drawBitmap(bitmap1, 0, bitmap1.getHeight() + 20, paint);
+        paint.setXfermode(dstOutXfermode);
         // 第三个：PorterDuff.Mode.DST_OUT
         canvas.drawBitmap(bitmap2, 0, bitmap1.getHeight() + 20, paint);
+        paint.setXfermode(null);
 
         // 用完之后使用 canvas.restore() 恢复 off-screen buffer
+        canvas.restore();
     }
 }
